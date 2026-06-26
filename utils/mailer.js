@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configuration SMTP réel (Ex: Gmail)
-const transporter = nodemailer.createTransport({
+const transporter = process.env.SMTP_USER ? nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: Number(process.env.SMTP_PORT) || 465,
   secure: true, // true for 465, false for other ports
@@ -12,9 +12,13 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-});
+}) : null;
 
-console.log('✉️ Mailer configuré avec le SMTP réel');
+if (transporter) {
+  console.log('✉️ Mailer configuré avec le SMTP réel');
+} else {
+  console.log('⚠️ Mailer désactivé : aucune configuration SMTP_USER trouvée');
+}
 
 export const sendReminderEmail = async (user, book, daysLeft) => {
   if (!transporter) return;
