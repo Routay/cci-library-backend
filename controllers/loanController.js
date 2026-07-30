@@ -123,14 +123,14 @@ export const requestPublicLoan = async (req, res) => {
       { path: 'book', select: 'title author' },
     ]);
 
-    // Notifier les super-admins de la nouvelle demande
+    // Notifier les super-admins de la nouvelle demande (en arrière-plan)
     try {
       const superAdmins = await User.find({ role: { $in: ['super_admin', 'admin'] }, actif: true });
       if (superAdmins.length > 0) {
-        await sendAdminNewLoanNotification(superAdmins, loan, member);
+        sendAdminNewLoanNotification(superAdmins, loan, member).catch(err => console.error('[EMAIL] Erreur asynchrone:', err));
       }
     } catch (emailErr) {
-      console.error('[EMAIL] Erreur notification admin:', emailErr);
+      console.error('[EMAIL] Erreur recherche admins:', emailErr);
     }
 
     res.status(201).json(loan);
@@ -185,7 +185,7 @@ export const updateLoan = async (req, res) => {
       .populate('book', 'title author');
 
     if (validated) {
-      await sendValidationEmail(loan.member, loan.book);
+      sendValidationEmail(loan.member, loan.book).catch(err => console.error('[EMAIL]', err));
       await ActivityLog.create({
         adminId: req.user._id,
         action: 'VALIDATE',
