@@ -32,7 +32,7 @@ export const getLoans = async (req, res) => {
     const skip = (Number(page) - 1) * Number(limit);
     const total = await Loan.countDocuments(query);
     const loans = await Loan.find(query)
-      .populate('member', 'nom prenom email')
+      .populate('member', 'nom prenom email tel')
       .populate('book', 'title author')
       .skip(skip)
       .limit(Number(limit))
@@ -56,7 +56,7 @@ export const createLoanAdmin = async (req, res) => {
     await Book.findByIdAndUpdate(book, { $inc: { stock: -1 } });
 
     await loan.populate([
-      { path: 'member', select: 'nom prenom email' },
+      { path: 'member', select: 'nom prenom email tel' },
       { path: 'book', select: 'title author' },
     ]);
 
@@ -119,7 +119,7 @@ export const requestPublicLoan = async (req, res) => {
     });
 
     await loan.populate([
-      { path: 'member', select: 'nom prenom email' },
+      { path: 'member', select: 'nom prenom email tel' },
       { path: 'book', select: 'title author' },
     ]);
 
@@ -181,7 +181,7 @@ export const updateLoan = async (req, res) => {
     if (validated) updates.borrowDate = new Date();
 
     const loan = await Loan.findByIdAndUpdate(req.params.id, updates, { new: true })
-      .populate('member', 'nom prenom email')
+      .populate('member', 'nom prenom email tel')
       .populate('book', 'title author');
 
     if (validated) {
@@ -228,7 +228,7 @@ export const extendLoan = async (req, res) => {
     await loan.save();
 
     await loan.populate([
-      { path: 'member', select: 'nom prenom email' },
+      { path: 'member', select: 'nom prenom email tel' },
       { path: 'book', select: 'title author' },
     ]);
 
