@@ -1,7 +1,7 @@
 import express from 'express';
 import Donation from '../models/Donation.js';
 import Book from '../models/Book.js';
-import { protect, superAdminOnly } from '../middleware/auth.js';
+import { protect, adminOnly } from '../middleware/auth.js';
 import { uploadPdf } from '../utils/cloudinary.js';
 
 const router = express.Router();
@@ -65,8 +65,8 @@ router.get('/my-donations', protect, async (req, res) => {
   }
 });
 
-// ── GET /api/donations ── Lister tous les dons (super_admin) ──
-router.get('/', protect, superAdminOnly, async (req, res) => {
+// ── GET /api/donations ── Lister tous les dons (admin) ──
+router.get('/', protect, adminOnly, async (req, res) => {
   try {
     const donations = await Donation.find().sort({ createdAt: -1 });
     res.json(donations);
@@ -75,8 +75,8 @@ router.get('/', protect, superAdminOnly, async (req, res) => {
   }
 });
 
-// ── PATCH /api/donations/:id/status ── Changer le statut ──────
-router.patch('/:id/status', protect, superAdminOnly, async (req, res) => {
+// ── PATCH /api/donations/:id/status ── Changer le statut (admin) ──────
+router.patch('/:id/status', protect, adminOnly, async (req, res) => {
   try {
     const { status, rejectionReason } = req.body;
     const donation = await Donation.findById(req.params.id);
